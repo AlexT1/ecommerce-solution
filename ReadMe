@@ -1,0 +1,7 @@
+This project include four modules, each implement different function.
+oc : means order center implement, include order relevant operation
+oc-api: means order center provide api for another system call
+discount: means implement some discounting rule.
+discount-api: means provide some calculation api for order system
+
+src: for all in one, does not modularize, use different controller service
