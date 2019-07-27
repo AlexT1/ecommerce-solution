@@ -23,11 +23,17 @@ public class OrderDataProcessService {
     @Autowired
     private ProductInfoRepository productInfoRepository;
 
+    /**
+     *  group given productIds by productId and count appear frequency
+     */
     public Map<String, Long> categoryProductCountById(List<String> productIds){
         return productIds.stream().
         collect(Collectors.groupingBy(Function.identity(),Collectors.counting()));
     }
 
+    /**
+     *  use given category map to return match discount condition productId
+     */
     public Map<String, Integer> filterConditionalProduct(Map<String,Long> categoryMap){
         Map<String, Integer> resultMap = new HashMap<String, Integer>();
         categoryMap.entrySet().stream()
@@ -37,9 +43,12 @@ public class OrderDataProcessService {
         return resultMap;
     }
 
-    public Map<String, BigDecimal> getAllProductPrice(){
+    /**
+     *  query given productId price from data base
+     */
+    public Map<String, BigDecimal> getAllProductPrice(List<String> productIds){
         Map<String, BigDecimal> resultMap = new HashMap<>();
-        productInfoRepository.findAllByValidStatusEquals(0).forEach(productInfo -> {
+        productInfoRepository.findByValidStatusEqualsAndProductIdIn(0,productIds).forEach(productInfo -> {
             resultMap.put(productInfo.getProductId(), productInfo.getProductPrice());
         });
         return resultMap;

@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName OrderService
@@ -25,23 +24,34 @@ public class OrderService {
     @Autowired
     private OrderDataProcessService orderDataProcessService;
 
+    /**
+     *  calculate given products real pay amount and return
+     */
     public CalculateResultDto getRealPayAmount(List<String> productIds) {
         Map<String, Long> categoryMap =  orderDataProcessService.categoryProductCountById(productIds);
         Map<String, Integer> discountProductMap = orderDataProcessService.filterConditionalProduct(categoryMap);
-        List<DiscountProductInfo> discountProductInfoList = discountService.getDiscountProductInfo();
-        Map<String, BigDecimal> productPriceMap = orderDataProcessService.getAllProductPrice();
+        Map<String, BigDecimal> productPriceMap = orderDataProcessService.getAllProductPrice(productIds);
         AmountCalculateHelper amountCalculateHelper = calculateTotalAmountOriginal(categoryMap,productPriceMap);
-        calculateDiscountAmount(discountProductMap, discountProductInfoList, amountCalculateHelper);
+        if (discountProductMap.size() > 0) {
+            List<DiscountProductInfo> discountProductInfoList = discountService.getDiscountProductInfo();
+            calculateDiscountAmount(discountProductMap, discountProductInfoList, amountCalculateHelper);
+        }
         return buildResponseCalculateResult(amountCalculateHelper);
     }
 
+    /**
+     *  build response request dto CalculateResultDto
+     */
     private CalculateResultDto buildResponseCalculateResult(AmountCalculateHelper amountCalculateHelper){
         CalculateResultDto calculateResultDto = new CalculateResultDto();
         calculateResultDto.setPrice(
-                amountCalculateHelper.getTotalPrice().subtract(amountCalculateHelper.getDiscountPrice()));
+                amountCalculateHelper.getTotalPrice().subtract(amountCalculateHelper.getDiscountPrice()).setScale(2, RoundingMode.DOWN));
         return calculateResultDto;
     }
 
+    /**
+     *  calculate original price for whole given productIds
+     */
     public AmountCalculateHelper calculateTotalAmountOriginal(Map<String, Long> categoryMap, Map<String, BigDecimal> productPriceMap) {
         AmountCalculateHelper amountCalculateHelper = new AmountCalculateHelper();
         categoryMap.forEach((k, v) -> amountCalculateHelper.setTotalPrice(
@@ -49,12 +59,17 @@ public class OrderService {
         return amountCalculateHelper;
     }
 
+    /**
+     *  calculate whole discount price for given products
+     */
     public AmountCalculateHelper calculateDiscountAmount(Map<String, Integer> discountProductMap, List<DiscountProductInfo> discountProductInfoList, AmountCalculateHelper amountCalculateHelper) {
         discountProductInfoList.stream().filter(discountProductInfo -> discountProductMap.containsKey(discountProductInfo.getProductId()))
                 .forEach(discountProductInfo -> {
                     BigInteger divisionValue = BigInteger.valueOf(discountProductMap.get(discountProductInfo.getProductId()))
                             .divide(BigInteger.valueOf(discountProductInfo.getProductNum()));
-                    amountCalculateHelper.setDiscountPrice(BigDecimal.valueOf(divisionValue.intValue()).multiply(discountProductInfo.getDiscountPrice()));
+                    amountCalculateHelper.setDiscountPrice(
+                            amountCalculateHelper.getDiscountPrice().add(BigDecimal.valueOf(divisionValue.intValue())
+                                    .multiply(discountProductInfo.getDiscountPrice())).setScale(2, RoundingMode.DOWN));
                 });
         return amountCalculateHelper;
     }

@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,14 @@ public class OrderServiceTest {
     }
 
     @Test
+    public void categoryProductCountById() {
+        orderDataProcessService.categoryProductCountById(productIds);
+    }
+
+    @Test
     public void calculateTotalAmountOriginal() {
         Map<String, Long> categoryMap = orderDataProcessService.categoryProductCountById(productIds);
-        Map<String, BigDecimal > productPriceMap= orderDataProcessService.getAllProductPrice();
+        Map<String, BigDecimal > productPriceMap= orderDataProcessService.getAllProductPrice(productIds);
         AmountCalculateHelper amountCalculateHelper = orderService.calculateTotalAmountOriginal(categoryMap, productPriceMap);
         System.out.println("original total price: " + amountCalculateHelper.getTotalPrice());
     }
@@ -46,8 +52,22 @@ public class OrderServiceTest {
     public void calculateDiscountAmount() {
         Map<String, Long> categoryMap = orderDataProcessService.categoryProductCountById(productIds);
         Map<String, Integer> discountProductMap = orderDataProcessService.filterConditionalProduct(categoryMap);
-        List< DiscountProductInfo > discountProductInfoList = discountService.getDiscountProductInfo();
+        List< DiscountProductInfo > discountProductInfoList =  discountService.getDiscountProductInfo();
         AmountCalculateHelper amountCalculateHelper= new AmountCalculateHelper();
         amountCalculateHelper = orderService.calculateDiscountAmount(discountProductMap, discountProductInfoList, amountCalculateHelper);
+    }
+
+    public List<DiscountProductInfo>  testDataSet(){
+        List<DiscountProductInfo> discountProductInfos = new ArrayList<>();
+        DiscountProductInfo discountProductInfo = new DiscountProductInfo();
+        discountProductInfo.setDiscountPrice(BigDecimal.valueOf(100));
+        discountProductInfo.setProductId("001");
+        discountProductInfo.setProductNum(3);
+        discountProductInfos.add(discountProductInfo);
+        discountProductInfo.setProductNum(2);
+        discountProductInfo.setProductId("002");
+        discountProductInfo.setDiscountPrice(BigDecimal.valueOf(40));
+        discountProductInfos.add(discountProductInfo);
+        return discountProductInfos;
     }
 }
