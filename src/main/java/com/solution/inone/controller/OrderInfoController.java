@@ -3,10 +3,7 @@ package com.solution.inone.controller;
 import com.solution.inone.dto.CalculateResultDto;
 import com.solution.inone.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,12 +14,12 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/order")
 public class OrderInfoController {
     @Autowired
     private OrderService orderService;
 
-    @RequestMapping(value = "/checkout", method = RequestMethod.POST)
+    @RequestMapping(value = "/checkout", method = RequestMethod.POST, produces = "application/json")
+    @ResponseBody
     public CalculateResultDto checkoutRealPayAmount(@RequestBody List<String> productIds) {
         try {
             if (!productIds.isEmpty()) {

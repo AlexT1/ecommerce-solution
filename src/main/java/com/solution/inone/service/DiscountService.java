@@ -1,5 +1,6 @@
 package com.solution.inone.service;
 
+import com.solution.inone.constant.ValidStatus;
 import com.solution.inone.dao.repository.DiscountRuleRepository;
 import com.solution.inone.dto.DiscountProductInfo;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class DiscountService {
      */
     public List<DiscountProductInfo> getDiscountProductInfo(){
         List<DiscountProductInfo> discountProductInfoList = new ArrayList<>();
-        discountRuleRepository.findAllByValidStatusEquals(0).forEach(discountRule -> {
+        discountRuleRepository.findAllByValidStatusEquals(ValidStatus.VALID.getStatus()).forEach(discountRule -> {
             DiscountProductInfo discountProductInfo = new DiscountProductInfo();
             try {
                 BeanUtils.copyProperties(discountRule, discountProductInfo);

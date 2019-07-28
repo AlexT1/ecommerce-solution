@@ -1,5 +1,6 @@
 package com.solution.inone.service;
 
+import com.solution.inone.constant.ValidStatus;
 import com.solution.inone.dao.repository.ProductInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,7 +49,7 @@ public class OrderDataProcessService {
      */
     public Map<String, BigDecimal> getAllProductPrice(List<String> productIds){
         Map<String, BigDecimal> resultMap = new HashMap<>();
-        productInfoRepository.findByValidStatusEqualsAndProductIdIn(0,productIds).forEach(productInfo -> {
+        productInfoRepository.findByValidStatusEqualsAndProductIdIn(ValidStatus.VALID.getStatus(),productIds).forEach(productInfo -> {
             resultMap.put(productInfo.getProductId(), productInfo.getProductPrice());
         });
         return resultMap;
