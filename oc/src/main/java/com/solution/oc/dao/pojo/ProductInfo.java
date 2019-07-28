@@ -1,4 +1,4 @@
-package com.solution.inone.dao.pojo;
+package com.solution.oc.dao.pojo;
 
 import org.hibernate.annotations.Table;
 

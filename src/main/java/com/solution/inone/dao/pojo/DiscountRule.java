@@ -41,7 +41,7 @@ public class DiscountRule implements Serializable {
     @Column(name = "UPDATED_USER_ID", columnDefinition = "varchar(25) DEFAULT NULL COMMENT 'updated user id'")
     private String updatedUserId;
     @Column(name = "VALID_STATUS", columnDefinition = "int(2) DEFAULT NULL COMMENT '0: valid, 1: invalid'")
-    private Integer validStatus = 1;
+    private Integer validStatus = 0;
     @Version
     @Column(name="VERSION",columnDefinition="int(11) DEFAULT 0 COMMENT 'version'")
     private Integer version = 0;
